@@ -1,6 +1,6 @@
 package com.pension.pension_management.controller;
 
-
+import com.pension.pension_management.dto.BalanceResponse;
 import com.pension.pension_management.dto.MemberRequest;
 import com.pension.pension_management.dto.MemberResponse;
 import com.pension.pension_management.service.MemberService;
@@ -41,5 +41,13 @@ public class MemberController {
     public ResponseEntity<List<MemberResponse>> getAllMembers() {
         List<MemberResponse> members = memberService.getAllMembers();
         return ResponseEntity.ok(members);
+    }
+
+    // ==================== TASK 3: BALANCE ENDPOINT ====================
+    @GetMapping("/{memberNumber}/balance")
+    @Operation(summary = "Get member balance (total contributions)")
+    public ResponseEntity<BalanceResponse> getMemberBalance(@PathVariable String memberNumber) {
+        BalanceResponse balance = memberService.getMemberBalance(memberNumber);
+        return ResponseEntity.ok(balance);
     }
 }

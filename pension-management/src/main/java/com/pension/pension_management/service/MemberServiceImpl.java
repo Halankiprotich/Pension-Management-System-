@@ -1,5 +1,6 @@
 package com.pension.pension_management.service;
 
+import com.pension.pension_management.dto.BalanceResponse;
 import com.pension.pension_management.dto.MemberRequest;
 import com.pension.pension_management.dto.MemberResponse;
 import com.pension.pension_management.entity.Member;
@@ -42,6 +43,19 @@ public class MemberServiceImpl implements MemberService {
 
         Member saved = memberRepository.save(member);
         return mapToResponse(saved);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public BalanceResponse getMemberBalance(String memberNumber) {
+        Member member = memberRepository.findByMemberNumber(memberNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with number: " + memberNumber));
+
+        return BalanceResponse.builder()
+                .memberNumber(member.getMemberNumber())
+                .fullName(member.getFullName())
+                .totalContributions(member.getTotalContributions())
+                .active(member.isActive())
+                .build();
     }
 
     @Override
