@@ -4,8 +4,9 @@ class AppConstants {
   // App Info
   static const String appName = 'Pension Management System';
 
-  // API - change to your deployed URL if needed
-  static const String baseUrl = 'http://10.0.2.2:8080'; // Android emulator → localhost
+  static const String baseUrl = 'http://192.168.46.103:8080';
+  //static const String baseUrl = 'http://10.0.2.2:8080'; // Android emulator → localhost
+  //static const String baseUrl = 'http://localhost:8080';
 
   // Routes
   static const String loginRoute = '/login';

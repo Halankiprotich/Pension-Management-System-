@@ -4,6 +4,11 @@ import '../utils/constants.dart';
 import 'api_service.dart';
 
 class AuthService {
+  // Singleton
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
+
   final ApiService _apiService = ApiService();
 
   Future<AuthModel> login(String username, String password) async {
@@ -27,6 +32,7 @@ class AuthService {
     await prefs.remove(AppConstants.tokenKey);
     await prefs.remove(AppConstants.usernameKey);
     await prefs.remove(AppConstants.roleKey);
+    _apiService.clearToken();
   }
 
   Future<AuthModel?> getSession() async {
@@ -36,9 +42,10 @@ class AuthService {
     final role = prefs.getString(AppConstants.roleKey);
     if (token == null || username == null) return null;
 
-    final auth = AuthModel(token: token, username: username, role: role ?? 'USER');
-    _apiService.setToken(auth.token);
-    return auth;
+    // Always re-set token on the singleton so API calls include it
+    _apiService.setToken(token);
+
+    return AuthModel(token: token, username: username, role: role ?? 'USER');
   }
 
   Future<bool> isLoggedIn() async {

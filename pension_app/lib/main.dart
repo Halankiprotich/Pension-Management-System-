@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/members_screen.dart';
 import 'screens/contributions_screen.dart';
 import 'screens/balance_screen.dart';
+import 'services/api_service.dart';
 import 'utils/constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load token from storage at startup so all API calls include it
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString(AppConstants.tokenKey);
+  if (token != null) {
+    ApiService().setToken(token);
+  }
+
   runApp(const MyApp());
 }
 

@@ -28,7 +28,7 @@ class _MembersScreenState extends State<MembersScreen> {
       _error = null;
     });
     try {
-      final session = await _authService.getSession();
+      final session = await _authService.getSession(); // this sets the token
       if (session == null) {
         if (mounted) Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
         return;

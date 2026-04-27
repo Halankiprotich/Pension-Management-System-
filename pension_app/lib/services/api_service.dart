@@ -6,22 +6,32 @@ import '../models/contribution.dart';
 import '../models/balance.dart';
 
 class ApiService {
+  // Singleton
+  static final ApiService _instance = ApiService._internal();
+  factory ApiService() => _instance;
+  ApiService._internal();
+
   final String _baseUrl = AppConstants.baseUrl;
-  String? _token;
+
+  // Static token — survives navigation and screen rebuilds
+  static String? _staticToken;
 
   void setToken(String token) {
-    _token = token;
+    _staticToken = token;
+  }
+
+  void clearToken() {
+    _staticToken = null;
   }
 
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    if (_token != null) 'Authorization': 'Bearer $_token',
+    if (_staticToken != null) 'Authorization': 'Bearer $_staticToken',
   };
 
   // ─── AUTH ─────────────────────────────────────────────────────────────────
 
-  /// POST /auth/login
   Future<Map<String, dynamic>> login(String username, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/auth/login'),
@@ -31,7 +41,6 @@ class ApiService {
     return _handleResponse(response);
   }
 
-  /// POST /auth/register
   Future<Map<String, dynamic>> register(String username, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/auth/register'),
@@ -43,19 +52,16 @@ class ApiService {
 
   // ─── MEMBERS ──────────────────────────────────────────────────────────────
 
-  /// GET /api/members
   Future<List<Member>> getMembers() async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/members'),
       headers: _headers,
     );
     final data = _handleResponse(response);
-    // handles both wrapped { data: [...] } and plain list [...]
     final list = data is List ? data : (data['data'] ?? data['content'] ?? data);
     return (list as List).map((m) => Member.fromJson(m)).toList();
   }
 
-  /// GET /api/members/{memberNumber}/balance
   Future<Balance> getMemberBalance(String memberNumber) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/members/$memberNumber/balance'),
@@ -66,7 +72,6 @@ class ApiService {
 
   // ─── CONTRIBUTIONS ────────────────────────────────────────────────────────
 
-  /// GET /api/contributions
   Future<List<Contribution>> getAllContributions() async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/contributions'),
@@ -77,7 +82,6 @@ class ApiService {
     return (list as List).map((c) => Contribution.fromJson(c)).toList();
   }
 
-  /// GET /api/contributions/member/{memberNumber}
   Future<List<Contribution>> getContributionsByMember(String memberNumber) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/contributions/member/$memberNumber'),
@@ -88,7 +92,6 @@ class ApiService {
     return (list as List).map((c) => Contribution.fromJson(c)).toList();
   }
 
-  /// POST /api/contributions
   Future<Map<String, dynamic>> addContribution({
     required String memberNumber,
     required double amount,
@@ -118,7 +121,9 @@ class ApiService {
     } else if (response.statusCode == 401) {
       throw Exception(AppConstants.unauthorizedError);
     } else {
-      final message = body is Map ? (body['message'] ?? body['error'] ?? AppConstants.networkError) : AppConstants.networkError;
+      final message = body is Map
+          ? (body['message'] ?? body['error'] ?? AppConstants.networkError)
+          : AppConstants.networkError;
       throw Exception(message);
     }
   }
