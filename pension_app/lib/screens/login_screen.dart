@@ -70,19 +70,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Icon(Icons.account_balance, color: Colors.white),
                     ),
                     const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppConstants.appName,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppConstants.appName,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const Text('Pension Management System',
-                            style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      ],
+                          const Text('Pension Management System',
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                              overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
                   ],
                 ),
