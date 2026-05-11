@@ -28,7 +28,7 @@ class _MembersScreenState extends State<MembersScreen> {
       _error = null;
     });
     try {
-      final session = await _authService.getSession(); // this sets the token
+      final session = await _authService.getSession();
       if (session == null) {
         if (mounted) Navigator.pushReplacementNamed(context, AppConstants.loginRoute);
         return;
@@ -40,6 +40,20 @@ class _MembersScreenState extends State<MembersScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  String _formatAmount(double amount) {
+    final parts = amount.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = intPart.length - 1; i >= 0; i--) {
+      if (count > 0 && count % 3 == 0) buffer.write(',');
+      buffer.write(intPart[i]);
+      count++;
+    }
+    return '${buffer.toString().split('').reversed.join()}.$decPart';
   }
 
   @override
@@ -59,13 +73,16 @@ class _MembersScreenState extends State<MembersScreen> {
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 48),
             const SizedBox(height: 12),
-            Text(_error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center),
+            Text(
+              _error!,
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 12),
             TextButton(
-                onPressed: _fetchMembers,
-                child: const Text('Retry')),
+              onPressed: _fetchMembers,
+              child: const Text('Retry'),
+            ),
           ],
         ),
       )
@@ -81,10 +98,13 @@ class _MembersScreenState extends State<MembersScreen> {
             final m = _members[index];
             return Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8),
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 leading: CircleAvatar(
                   backgroundColor: AppConstants.primaryColor,
                   child: Text(
@@ -94,9 +114,10 @@ class _MembersScreenState extends State<MembersScreen> {
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                title: Text(m.fullName,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  m.fullName,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -104,28 +125,39 @@ class _MembersScreenState extends State<MembersScreen> {
                     if (m.email != null) Text(m.email!),
                   ],
                 ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Chip(
-                      label: Text(
-                        m.active ? 'Active' : 'Inactive',
-                        style: const TextStyle(fontSize: 11),
+                trailing: SizedBox(
+                  width: 80,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: m.active
+                              ? Colors.green.shade100
+                              : Colors.red.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          m.active ? 'Active' : 'Inactive',
+                          style: const TextStyle(fontSize: 10),
+                        ),
                       ),
-                      backgroundColor: m.active
-                          ? Colors.green.shade100
-                          : Colors.red.shade100,
-                      padding: EdgeInsets.zero,
-                    ),
-                    Text(
-                      'KES ${m.totalContributions.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade600,
+                      const SizedBox(height: 4),
+                      Text(
+                        'KES ${_formatAmount(m.totalContributions)}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
