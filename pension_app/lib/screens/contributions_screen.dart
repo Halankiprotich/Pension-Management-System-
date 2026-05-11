@@ -52,6 +52,20 @@ class _ContributionsScreenState extends State<ContributionsScreen> {
     }
   }
 
+  String _formatAmount(double amount) {
+    final parts = amount.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = intPart.length - 1; i >= 0; i--) {
+      if (count > 0 && count % 3 == 0) buffer.write(',');
+      buffer.write(intPart[i]);
+      count++;
+    }
+    return '${buffer.toString().split('').reversed.join()}.$decPart';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,8 +112,7 @@ class _ContributionsScreenState extends State<ContributionsScreen> {
                 child: Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor:
-                      Colors.green.shade100,
+                      backgroundColor: Colors.green.shade100,
                       child: Icon(Icons.payments,
                           color: Colors.green.shade700),
                     ),
@@ -129,7 +142,7 @@ class _ContributionsScreenState extends State<ContributionsScreen> {
                       ),
                     ),
                     Text(
-                      'KES ${c.amount.toStringAsFixed(2)}',
+                      'KES ${_formatAmount(c.amount)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,

@@ -50,6 +50,20 @@ class _BalanceScreenState extends State<BalanceScreen> {
     }
   }
 
+  String _formatAmount(double amount) {
+    final parts = amount.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = intPart.length - 1; i >= 0; i--) {
+      if (count > 0 && count % 3 == 0) buffer.write(',');
+      buffer.write(intPart[i]);
+      count++;
+    }
+    return '${buffer.toString().split('').reversed.join()}.$decPart';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +84,6 @@ class _BalanceScreenState extends State<BalanceScreen> {
                 style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 24),
 
-            // Search field
             TextFormField(
               controller: _memberNumberController,
               decoration: const InputDecoration(
@@ -131,7 +144,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'KES ${_balance!.totalContributions.toStringAsFixed(2)}',
+                      'KES ${_formatAmount(_balance!.totalContributions)}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 34,
@@ -146,7 +159,6 @@ class _BalanceScreenState extends State<BalanceScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Info rows
               _InfoRow(
                   label: 'Member Number',
                   value: _balance!.memberNumber,
